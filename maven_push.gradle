@@ -1,0 +1,30 @@
+/**
+ * 编译jar包并推送maven仓库
+ *
+ * gradle clean build -x test -Pprofile=xxx publish
+ *
+ */
+apply plugin: "maven-publish"
+
+publishing {
+    repositories {
+        maven {
+            url ""
+            credentials{
+                username = NEXUS_USERNAME
+                password = NEXUS_PASSWORD
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            pom.withXml {
+                asNode().appendNode('description', POM_DESCRIPTION)
+            }
+        }
+    }
+}
+
+publish.dependsOn(build)
+publishToMavenLocal.dependsOn(build)

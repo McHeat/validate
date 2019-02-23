@@ -1,0 +1,59 @@
+// 声明gradle本身需要的资源，支持其它build脚本的运行-优先其他执行
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            url "http://maven.aliyun.com/nexus/content/repositories/central/"
+        }
+        mavenCentral()
+    }
+    dependencies {
+        // 在执行其余的build脚本时，class loader可以使用的依赖项
+        classpath("io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE")
+    }
+}
+
+group 'com.mcheat.validate'
+version '1.0-SNAPSHOT'
+
+// 项目需要的资源
+// 加入插件
+apply plugin: 'java'
+apply plugin: "idea"
+apply plugin: "maven"
+
+sourceCompatibility = 1.8
+ext {
+    // project的额外属性，用于定义profile属性，模拟maven的profile
+    if (project.hasProperty("profile")) {
+        profile = project["profile"]
+    } else {
+        profile = "dev"
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url "http://maven.aliyun.com/nexus/content/repositories/central/"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.projectlombok:lombok:1.16.18"
+    compile "org.hibernate:hibernate-validator:5.3.5.Final"
+    compile "log4j:log4j:1.2.17"
+//    compile "org.slf4j:log4j-over-slf4j:1.7.25"
+//    compile "org.slf4j:slf4j-nop:1.7.2"
+    compile "org.slf4j:slf4j-log4j12:1.7.21"
+
+    testCompile "junit:junit:4.12"
+}
+
+configurations.all {
+    // 默认情况下包在上传后24小时更新一次，配置修改为10s
+    resolutionStrategy.cacheChangingModulesFor 10, 'seconds'
+}
+
+apply from: "maven_push.gradle"
